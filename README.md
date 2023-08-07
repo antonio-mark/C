@@ -1,2 +1,1 @@
-# C
-Projetos em C/C++ - Unisinos 
+# Projetos em C/C++ - Unisinos 
