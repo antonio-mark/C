@@ -83,58 +83,54 @@
 // Teste como entrada números exatos sem casas decimais, números com 1, 2, 3 e 4 casas decimais,
 // negativos, positivos, unidades, dezenas, centenas, etc
 
-#include <stdio.h>
+// #include <stdio.h>
+// #include <string.h>
 
-int main()
-{
-    float n1, n2, n3;
-    int casas = 0;
+// int main()
+// {
+//     float n1, n2, n3;
+//     int casas = 0;
 
-    printf("Informe 3 números fracionários: ");
-    scanf("%f%f%f", &n1, &n2, &n3);
+//     printf("Informe 3 números fracionários: ");
+//     scanf("%f%f%f", &n1, &n2, &n3);
 
-    printf("%15.2f %.2f %.2f\n", n1, n2, n3);
+//     printf("%15.2f %.2f %.2f\n", n1, n2, n3);
 
-    if (n1 == (int)n1)
-    {
-        printf("Número 1 é um número inteiro: %d\n", (int)n1);
-    }
+//     if (n1 == (int)n1)
+//     {
+//         printf("Número 1 é um número inteiro: %d\n", (int)n1);
+//     }
 
-    if (n2 >= 0)
-    {
-        printf("Número 2 é positivo.\n");
-    }
-    else
-    {
-        printf("Número 2 é negativo.\n");
-    }
+//     if (n2 >= 0)
+//     {
+//         printf("Número 2 é positivo.\n");
+//     }
+//     else
+//     {
+//         printf("Número 2 é negativo.\n");
+//     }
 
-    while (n1 != (int)n1)
-    {
-        n1 *= 10;
-        casas++;
-    }
-    printf("Número 1 tem %d casa(s) decimal(is)\n", casas);
+//     while (n1 != (int)n1)
+//     {
+//         n1 *= 10;
+//         casas++;
+//     }
+//     printf("Número 1 tem %d casa(s) decimal(is)\n", casas);
 
-    if (modificarUltimoDigito((int)n3) % 1 == 0)
-    {
-        printf("Número 3 é uma unidade.\n");
-    }
-    else if (modificarUltimoDigito((int)n3) % 10 == 0)
-    {
-        printf("Número 3 é uma dezena.\n");
-    }
-    else
-    {
-        printf("Número 3 é uma centena.\n");
-    }
+//     int numDigitos = snprintf(NULL, 0, "%d", (int)n3);
 
-    return 0;
-}
+//     if (numDigitos == 3)
+//     {
+//         printf("Número 3 é uma centena.\n");
+//     }
+//     else if (numDigitos == 2)
+//     {
+//         printf("Número 3 é uma dezena.\n");
+//     }
+//     else
+//     {
+//         printf("Número 3 é uma unidade.\n");
+//     }
 
-int modificarUltimoDigito(int numero)
-{
-    int ultimoDigito = numero % 10;
-    int novoNumero = numero - ultimoDigito;
-    return novoNumero;
-}
+//     return 0;
+// }
