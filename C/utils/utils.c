@@ -76,3 +76,7 @@
 //  floor(x) : Arredonda para baixo. Retorna o maior número inteiro menor ou igual a x.
 //  ceil(x) : Arredonda para cima. Retorna o menor número inteiro maior ou igual a x.
 //  fabs(x) : Retorna o valor absoluto (módulo) do número x.
+
+//  #include <ctype.h>
+//  isupper(ch) : Retorna se string ou char está em uppercase.
+//  islower(ch) : Retorna se string ou char está em lowercase.
