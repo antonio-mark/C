@@ -128,3 +128,115 @@
         return 0;
     }
     
+//  Exemplo de Ponteiro em c++
+    #include <iostream>
+
+    int main() {
+        int i;
+        int *pi;
+        pi = &i;
+
+        // int i;
+        // int *pi = &i;
+
+        std::cout << "Informe um inteiro: ";
+        std::cin >> *pi;
+        std::cout << "\nValor de i: " << *pi;
+        std::cout << "\nEndereco de i: " << pi << "\n";
+
+        return 0;
+    }
+
+//  Alocação Dinâmica em c++ (new/delete)
+    #include <iostream>
+
+    int main() {
+        int *pa = new int;
+        float *pb = new float;
+        char *pc = new char;
+
+        std::cout << ":: Ponteiros e endereços ::\n\n";
+        std::cout << "Informe a, b e c: ";
+
+        std::cin >> *pa >> *pb >> *pc;
+
+        std::cout << "\nA: " << pa << " = " << *pa;
+        std::cout << "\nB: " << pb << " = " << *pb;
+        std::cout << "\nC: " << static_cast<void*>(pc) << " = " << *pc << "\n\n";
+
+        delete pa, pb, pc;
+
+        return 0;
+    }
+    
+// OBS:Utilizei static_cast<void*> para imprimir o endereço do ponteiro pc como um ponteiro void, 
+// pois o formato %p do printf não é diretamente suportado pelo std::cout para ponteiros de caracteres. 
+// Isso permitirá que você veja o endereço de pc de maneira semelhante ao %p.
+
+//  Alocação Dinâmica em c++ - Array (new[]/delete[])
+    #include <iostream>
+    using namespace std;
+
+    int main() {
+        short int i, tam = 10;
+        short int *val = new short int[tam];
+
+        for (i = 0; i < tam; i++) {
+            *(val + i) = i;
+            cout << (val + i) << " - [" << i << "] = " << *(val + i) << endl;
+        }
+
+        delete[] val;
+
+        return 0;
+    }
+
+//  Exemplo função com ponteiros
+    #include <iostream>
+
+    void minhaFuncaoReferencia(int &a, int &b) 
+    {
+        a = 10;
+        b = 20;
+    }
+
+    void minhaFuncaoPonteiros(int *a, int *b) 
+    {
+        *a = 10;
+        *b = 20;
+    }
+
+    void minhaFuncaoNormal(int a, int b)
+    {
+        a = 10;
+        b = 20;
+    }
+
+    int main() 
+    {
+        int x = 5, y = 15;
+
+        minhaFuncaoReferencia(x, y); // Agora, x é 10 e y é 20
+        std::cout << "Valor de x após minhaFuncaoReferencia: " << x << std::endl;
+        std::cout << "Valor de y após minhaFuncaoReferencia: " << y << std::endl;
+
+        x = 5; // Resetar x para o valor original
+        y = 15; // Resetar y para o valor original
+
+        // int *px = &x;
+        // int *py = &y;
+        // minhaFuncaoPonteiros(px, py);
+        minhaFuncaoPonteiros(&x, &y); // Agora, x é 10 e y é 20
+        std::cout << "Valor de x após minhaFuncaoPonteiros: " << x << std::endl;
+        std::cout << "Valor de y após minhaFuncaoPonteiros: " << y << std::endl;
+
+        x = 5; // Resetar x para o valor original
+        y = 15; // Resetar y para o valor original
+        
+        minhaFuncaoNormal(x, y); // Agora, x é 5 e y é 15, pois foram enviados cópias de x e y.
+        // Após a chamada da função minhaFuncaoNormal, x e y ainda terão os valores originais.
+        // Qualquer modificação feita dentro da função será aplicada apenas às cópias locais a e b.
+
+        return 0;
+    }
+
