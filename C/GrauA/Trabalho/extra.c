@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 const char alfabeto[] = {
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
     't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
@@ -5,10 +7,10 @@ const char alfabeto[] = {
     '5', '6', '7', '8', '9', ' ', '.'};
 
 const int tamanho = sizeof(alfabeto) / sizeof(char);
-char matriz[tamanho][tamanho];
 
 int main()
 {
+    char matriz[tamanho][tamanho];
     // for (int i = 0; i < tamanho; i++)
     // {
     //     for (int j = 0; j < tamanho; j++)
@@ -30,5 +32,14 @@ int main()
             if (indiceChar == tamanho)
                 indiceChar = 0;
         }
+    }
+
+    for (int i = 0; i < tamanho; i++)
+    {
+        for (int j = 0; j < tamanho; j++)
+        {
+            printf("%c ", matriz[i][j]);
+        }
+        printf("\n");
     }
 }
