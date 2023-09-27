@@ -13,8 +13,7 @@ const int tamanhoTexto = 200;
 
 void mostrarAlfabeto();
 void solicitarEntrada(char *str, const char *tipo, const int tamanhoMaximo, const int tamanhoMinimo);
-void criptografar(const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
-// void descriptografar();
+void processarTexto(const int opcao, const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
 void mostrarAutor();
 
 int validarEntrada(char *str, const int tamanhoMinimo);
@@ -62,10 +61,10 @@ int main()
             solicitarEntrada(texto, "texto", tamanhoTexto, 8);
             break;
         case 4:
-            criptografar(chave, texto, matriz);
+            processarTexto(opcao, chave, texto, matriz);
             break;
         case 5:
-            // descriptografar();
+            processarTexto(opcao, chave, texto, matriz);
             break;
         case 6:
             mostrarAutor();
@@ -120,41 +119,48 @@ void solicitarEntrada(char *str, const char *tipo, const int tamanhoMaximo, cons
     printf("\n%s salvo(a) com sucesso!\n", tipo);
 }
 
-void criptografar(const char *chave, const char *texto, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
+void processarTexto(const int opcao, const char *chave, const char *texto, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
 {
     if (!validarStringVazia(chave, texto))
         return;
 
     int tamanhoTexto = strlen(texto);
-    char textoCriptografado[tamanhoTexto];
-    // o caracrere da mensagem está nas colunas e a chave está nas linhas
-
+    int tamanhoChave = strlen(chave);
+    char textoEncDec[tamanhoTexto];
     int indexChave, indexTexto;
+
     for (int index = 0; index < tamanhoTexto; index++)
     {
+        indexChave = index % tamanhoChave;
+        int possuiChave = 0, possuiTexto = 0;
 
         for (int i = 0; i < tamanhoAlfabeto; i++)
         {
-            if (chave[index] == matriz[i][0])
+            if (chave[indexChave] == matriz[0][i])
             {
-                indexChave = i; // Encontrou a chave na linha i
-                break;
+                indexChave = i;
+                possuiChave = 1;
             }
+
+            if (texto[index] == matriz[0][i])
+            {
+                indexTexto = i;
+                possuiTexto = 1;
+            }
+
+            if (possuiChave && possuiTexto)
+                break;
         }
 
-        for (int j = 0; j < tamanhoAlfabeto; j++)
-        {
-            if (texto[index] == matriz[0][j])
-            {
-                indexTexto = j; // Encontrou o texto na coluna j
-                break;
-            }
-        }
-
-        textoCriptografado[index] = matriz[indexChave][indexTexto];
+        if (opcao == 4)
+            textoEncDec[index] = matriz[indexChave][indexTexto];
+        else
+            textoEncDec[index] = matriz[0][indexTexto];
     }
 
-    printf("%s", textoCriptografado);
+    textoEncDec[tamanhoTexto] = '\0';
+
+    printf("%s", textoEncDec);
 }
 
 void mostrarAutor()
@@ -216,4 +222,88 @@ int validarStringVazia(const char *chave, const char *texto)
     }
 
     return isValid;
+}
+
+//
+
+void descriptografar(const char *chave, const char *textoCriptografado, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
+{
+    if (!validarStringVazia(chave, textoCriptografado))
+        return;
+
+    int tamanhoTexto = strlen(textoCriptografado);
+    int tamanhoChave = strlen(chave);
+    char textoDescriptografado[tamanhoTexto + 1]; // +1 para o caractere nulo
+    int indexChave, indexTexto;
+
+    for (int index = 0; index < tamanhoTexto; index++)
+    {
+        indexChave = index % tamanhoChave;
+        int possuiChave = 0, possuiTexto = 0;
+
+        for (int i = 0; i < tamanhoAlfabeto; i++)
+        {
+            if (chave[indexChave] == matriz[i][0])
+            {
+                indexChave = i;
+                possuiChave = 1;
+            }
+
+            if (textoCriptografado[index] == matriz[i][indexChave])
+            {
+                indexTexto = i;
+                possuiTexto = 1;
+            }
+
+            if (possuiChave && possuiTexto)
+                break;
+        }
+
+        textoDescriptografado[index] = matriz[0][indexTexto];
+    }
+
+    textoDescriptografado[tamanhoTexto] = '\0';
+
+    printf("%s", textoDescriptografado);
+}
+
+void criptografar(const char *chave, const char *texto, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
+{
+    if (!validarStringVazia(chave, texto))
+        return;
+
+    int tamanhoTexto = strlen(texto);
+    int tamanhoChave = strlen(chave);
+    char textoCriptografado[tamanhoTexto];
+    int indexChave, indexTexto;
+
+    for (int index = 0; index < tamanhoTexto; index++)
+    {
+        indexChave = index % tamanhoChave;
+        int possuiChave = 0, possuiTexto = 0;
+
+        for (int i = 0; i < tamanhoAlfabeto; i++)
+        {
+            if (chave[indexChave] == matriz[0][i])
+            {
+                indexChave = i;
+                possuiChave = 1;
+            }
+
+            if (texto[index] == matriz[0][i])
+            {
+                indexTexto = i;
+                possuiTexto = 1;
+            }
+
+            if (possuiChave && possuiTexto)
+                break;
+        }
+
+        textoCriptografado[index] = matriz[indexChave][indexTexto];
+    }
+
+    textoCriptografado[tamanhoTexto] = '\0';
+
+    printf("%s", textoCriptografado);
 }
