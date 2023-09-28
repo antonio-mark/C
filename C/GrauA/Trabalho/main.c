@@ -16,6 +16,9 @@ void solicitarEntrada(char *str, const char *tipo, const int tamanhoMaximo, cons
 void processarTexto(const int opcao, const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
 void mostrarAutor();
 
+void criptografar(const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
+void descriptografar(const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
+
 int validarEntrada(char *str, const int tamanhoMinimo);
 int validarStringVazia(const char *chave, const char *texto);
 
@@ -61,10 +64,10 @@ int main()
             solicitarEntrada(texto, "texto", tamanhoTexto, 8);
             break;
         case 4:
-            processarTexto(opcao, chave, texto, matriz);
+            criptografar(chave, texto, matriz);
             break;
         case 5:
-            processarTexto(opcao, chave, texto, matriz);
+            descriptografar(chave, texto, matriz);
             break;
         case 6:
             mostrarAutor();
@@ -233,7 +236,7 @@ void descriptografar(const char *chave, const char *textoCriptografado, const ch
 
     int tamanhoTexto = strlen(textoCriptografado);
     int tamanhoChave = strlen(chave);
-    char textoDescriptografado[tamanhoTexto + 1]; // +1 para o caractere nulo
+    char textoDescriptografado[tamanhoTexto];
     int indexChave, indexTexto;
 
     for (int index = 0; index < tamanhoTexto; index++)
