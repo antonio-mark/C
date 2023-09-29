@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// CONSTANTES
 const char alfabeto[] = {
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
     't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
@@ -11,17 +12,16 @@ const int tamanhoAlfabeto = sizeof(alfabeto) / sizeof(char) - 1;
 const int tamanhoChave = 40;
 const int tamanhoTexto = 200;
 
+// PROTÓTIPOS DE FUNÇOES
+int main();
 void mostrarAlfabeto();
 void solicitarEntrada(char *str, const char *tipo, const int tamanhoMaximo, const int tamanhoMinimo);
 void processarTexto(const int opcao, const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
 void mostrarAutor();
-
-void criptografar(const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
-void descriptografar(const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
-
 int validarEntrada(char *str, const int tamanhoMinimo);
 int validarStringVazia(const char *chave, const char *texto);
 
+// MENU
 int main()
 {
     int opcao;
@@ -64,10 +64,10 @@ int main()
             solicitarEntrada(texto, "texto", tamanhoTexto, 8);
             break;
         case 4:
-            criptografar(chave, texto, matriz);
+            processarTexto(opcao, chave, texto, matriz);
             break;
         case 5:
-            descriptografar(chave, texto, matriz);
+            processarTexto(opcao, chave, texto, matriz);
             break;
         case 6:
             mostrarAutor();
@@ -84,6 +84,7 @@ int main()
     return 0;
 }
 
+// MÉTODOS PRINCIPAIS
 void mostrarAlfabeto()
 {
     printf("\nALFABETO\n");
@@ -129,6 +130,7 @@ void processarTexto(const int opcao, const char *chave, const char *texto, const
 
     int tamanhoTexto = strlen(texto);
     int tamanhoChave = strlen(chave);
+
     char textoEncDec[tamanhoTexto];
     int indexChave, indexTexto;
 
@@ -158,12 +160,13 @@ void processarTexto(const int opcao, const char *chave, const char *texto, const
         if (opcao == 4)
             textoEncDec[index] = matriz[indexChave][indexTexto];
         else
-            textoEncDec[index] = matriz[0][indexTexto];
+            textoEncDec[index] = matriz[0][(indexTexto + indexChave) % tamanhoAlfabeto];
     }
 
     textoEncDec[tamanhoTexto] = '\0';
 
-    printf("%s", textoEncDec);
+    opcao == 4 ? printf("\nTexto criptografado: %s\n", textoEncDec)
+               : printf("\nTexto descriptografado: %s\n", textoEncDec);
 }
 
 void mostrarAutor()
@@ -179,7 +182,6 @@ void mostrarAutor()
 }
 
 // MÉTODOS AUXILIARES
-
 int validarEntrada(char *str, const int tamanhoMinimo)
 {
     char *verificador;
@@ -225,88 +227,4 @@ int validarStringVazia(const char *chave, const char *texto)
     }
 
     return isValid;
-}
-
-//
-
-void descriptografar(const char *chave, const char *textoCriptografado, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
-{
-    if (!validarStringVazia(chave, textoCriptografado))
-        return;
-
-    int tamanhoTexto = strlen(textoCriptografado);
-    int tamanhoChave = strlen(chave);
-    char textoDescriptografado[tamanhoTexto];
-    int indexChave, indexTexto;
-
-    for (int index = 0; index < tamanhoTexto; index++)
-    {
-        indexChave = index % tamanhoChave;
-        int possuiChave = 0, possuiTexto = 0;
-
-        for (int i = 0; i < tamanhoAlfabeto; i++)
-        {
-            if (chave[indexChave] == matriz[i][0])
-            {
-                indexChave = i;
-                possuiChave = 1;
-            }
-
-            if (textoCriptografado[index] == matriz[i][indexChave])
-            {
-                indexTexto = i;
-                possuiTexto = 1;
-            }
-
-            if (possuiChave && possuiTexto)
-                break;
-        }
-
-        textoDescriptografado[index] = matriz[0][indexTexto];
-    }
-
-    textoDescriptografado[tamanhoTexto] = '\0';
-
-    printf("%s", textoDescriptografado);
-}
-
-void criptografar(const char *chave, const char *texto, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto])
-{
-    if (!validarStringVazia(chave, texto))
-        return;
-
-    int tamanhoTexto = strlen(texto);
-    int tamanhoChave = strlen(chave);
-    char textoCriptografado[tamanhoTexto];
-    int indexChave, indexTexto;
-
-    for (int index = 0; index < tamanhoTexto; index++)
-    {
-        indexChave = index % tamanhoChave;
-        int possuiChave = 0, possuiTexto = 0;
-
-        for (int i = 0; i < tamanhoAlfabeto; i++)
-        {
-            if (chave[indexChave] == matriz[0][i])
-            {
-                indexChave = i;
-                possuiChave = 1;
-            }
-
-            if (texto[index] == matriz[0][i])
-            {
-                indexTexto = i;
-                possuiTexto = 1;
-            }
-
-            if (possuiChave && possuiTexto)
-                break;
-        }
-
-        textoCriptografado[index] = matriz[indexChave][indexTexto];
-    }
-
-    textoCriptografado[tamanhoTexto] = '\0';
-
-    printf("%s", textoCriptografado);
 }
