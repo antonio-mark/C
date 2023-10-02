@@ -17,7 +17,7 @@ int main();
 void mostrarAlfabeto();
 void solicitarEntrada(char *str, const char *tipo, const int tamanhoMaximo, const int tamanhoMinimo);
 void processarTexto(const int opcao, const char *texto, const char *chave, const char matriz[tamanhoAlfabeto][tamanhoAlfabeto]);
-void mostrarAutor();
+void mostrarAutores();
 int validarEntrada(char *str, const int tamanhoMinimo);
 int validarStringVazia(const char *chave, const char *texto);
 
@@ -70,7 +70,7 @@ int main()
             processarTexto(opcao, chave, texto, matriz);
             break;
         case 6:
-            mostrarAutor();
+            mostrarAutores();
             break;
         case 7:
             printf("\nPrograma encerrado.\n");
@@ -169,13 +169,13 @@ void processarTexto(const int opcao, const char *chave, const char *texto, const
                : printf("\nTexto descriptografado: %s\n", textoEncDec);
 }
 
-void mostrarAutor()
+void mostrarAutores()
 {
-    char nome[] = {"Autor: Antonio B. Neto"};
+    char nomes[] = {"Autores: Antonio B. Neto e Henrique S.B. Boeira"};
 
-    printf("\n%s\n", nome);
+    printf("\n%s\n", nomes);
 
-    for (int i = 0; i < strlen(nome); i++)
+    for (int i = 0; i < strlen(nomes); i++)
         printf("-");
 
     printf("\n");
