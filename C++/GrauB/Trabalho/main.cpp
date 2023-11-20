@@ -3,6 +3,9 @@
 #include <sstream>
 #include <fstream> 
 #include <vector>
+#include <map>
+#include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -39,9 +42,22 @@ public:
         return 0;
     }
 
-    string imprimir() 
+    bool validarData()
     {
-        return to_string(dia) + "/" + to_string(mes) + "/" + to_string(ano);
+        return this->dia < 1 || this->dia > 31 || 
+               this->mes < 1 || this->mes > 12 || 
+               this->ano < 1500 || this->ano > 2024;
+    }
+
+    string toString() 
+    {
+        return formatarNumero(this->dia) + "/" + formatarNumero(this->mes) + "/" + formatarNumero(this->ano);
+    }
+
+private:
+    string formatarNumero(int numero)
+    {
+        return (numero < 10) ? "0" + to_string(numero) : to_string(numero);
     }
 };
 
@@ -72,7 +88,11 @@ public:
             getline(ss, auxiliar, '-');
 
         ss >> this->idCVE;
-        ss >> this->idCWE;
+        getline(ss, auxiliar, '\t');
+        
+        if (isdigit(ss.peek())) 
+            ss >> this->idCWE;
+
         getline(ss, auxiliar, '\t');
         getline(ss, this->vulnerabilityTypes, '\t');
         getline(ss, auxiliar, '\t');
@@ -97,18 +117,27 @@ public:
         delete this->updateDate;
     }
 
-    int getidCVE() { return this->idCVE; }
-    int getidCWE() { return this->idCWE; }
+    int getIdCVE() { return this->idCVE; }
+    int getIdCWE() { return this->idCWE; }
     float getScore() { return this->scoreCVSS; }
-    string getDescription() { return this->description; }
+    Data* getPublishDate() { return this->publishDate; }
 
-    void imprimir() const {
+    bool hasSubstringInDescription(string substring) 
+    { 
+        transform(this->description.begin(), this->description.end(), this->description.begin(), ::tolower);
+        transform(substring.begin(), substring.end(), substring.begin(), ::tolower);
+
+        return this->description.find(substring) != string::npos;
+    }
+
+    void imprimir() 
+    {
         cout << "ID CVE: " << this->idCVE << endl;
         cout << "ID CWE: " << this->idCWE << endl;
         cout << "Score CVSS: " << this->scoreCVSS << endl;
         cout << "Vulnerability Types: " << this->vulnerabilityTypes << endl;
-        cout << "Publish Date: " << this->publishDate->imprimir() << endl;
-        cout << "Update Date: " << this->updateDate->imprimir() << endl;
+        cout << "Publish Date: " << this->publishDate->toString() << endl;
+        cout << "Update Date: " << this->updateDate->toString() << endl;
         cout << "Gained Access Level: " << this->gainedAccessLevel << endl;
         cout << "Access: " << this->access << endl;
         cout << "Complexity: " << this->complexity << endl;
@@ -118,12 +147,42 @@ public:
         cout << "Availability: " << this->availability << endl;
         cout << "Description: " << this->description << endl << endl;
     }
+
+    void imprimirPorDescription() 
+    {
+        cout << "ID CVE: " << this->idCVE << "\t";
+        cout << "Score CVSS: " << this->scoreCVSS << "\t";
+        cout << "Publish Date: " << this->publishDate->toString() << " ";
+        cout << "Update Date: " << this->updateDate->toString() << " ";
+        cout << endl;
+    }
+
+    void serialize(ofstream& arquivo)
+    {
+        arquivo 
+           << this->idCVE << '\t'
+           << this->idCWE << '\t'
+           << this->scoreCVSS << '\t'
+           << this->vulnerabilityTypes << '\t'
+           << this->publishDate->toString() << '\t'
+           << this->updateDate->toString() << '\t'
+           << this->gainedAccessLevel << '\t'
+           << this->access << '\t'
+           << this->complexity << '\t'
+           << this->authentication << '\t'
+           << this->confidentialy << '\t'
+           << this->integrity << '\t'
+           << this->availability << '\t'
+           << this->description;
+    }
 };
 
 class Sistema 
 {
 private:
     vector<Registro*> dados;
+    vector<Registro*> dadosExportados;
+    string primeiraLinha;
 
 public:
     Sistema(const string& nomeArquivo)
@@ -133,7 +192,7 @@ public:
 
         if (arquivo.is_open()) 
         {
-            getline(arquivo, linha);
+            getline(arquivo, primeiraLinha);
 
             while(!arquivo.eof())
             {
@@ -156,23 +215,138 @@ public:
     void localizarPorCveId(int cveId)
     {
         for (Registro* registro : dados)
-            if (registro->getidCVE() == cveId)
+            if (registro->getIdCVE() == cveId)
             {
                 registro->imprimir();  
                 return;
             }  
         
-        cout << "Não foi possivel encontrar o registro com o CVE ID " << cveId << endl;
+        cout << "Não foi possivel encontrar o registro com o CVE ID: " << cveId << endl;
+    }
+
+    void localizarPorDescription(string substring)
+    {
+        bool teveRegistro = false;
+        for (Registro* registro : dados)
+            if (registro->hasSubstringInDescription(substring))
+            {
+                registro->imprimirPorDescription(); 
+                teveRegistro = true;
+            }
+
+        if (!teveRegistro)  
+            cout << "Não foi possivel encontrar algum registro com essa parte de descrição: " << substring << endl;
+    }
+
+    void gerarHistogramaCweId(int contagemMinima, int contagemMaxima)
+    {
+        if (contagemMinima > contagemMaxima)
+        {
+            cout << "\nA contagem máxima deve ser maior ou igual a contagem mínima.\n";
+            return;
+        } 
+
+        map<int, int> contagem;
+        for (Registro* registro : dados) 
+            contagem[registro->getIdCWE()]++;
+
+        vector<pair<int, int>> codigosFiltrados;
+        for (pair par : contagem) 
+        {
+            if (par.second >= contagemMinima && par.second <= contagemMaxima) 
+                codigosFiltrados.push_back(par);
+        }   
+
+        sort(codigosFiltrados.begin(), codigosFiltrados.end(), [](const auto& a, const auto& b) {
+            return a.second > b.second;
+        });
+
+        cout << "\nHistograma \"CWE ID\":\n";
+        cout << setw(10) << left << "CWE ID";
+        cout << setw(8) << " Qtd" << "\n";
+        for (pair par : codigosFiltrados) 
+        {
+            int quantidade = par.second;
+            double percentual = (static_cast<double>(quantidade) / dados.size()) * 100;
+
+            cout << setw(8) << left << par.first << " | ";
+            cout << setw(8) << quantidade << " | ";
+            cout << string(quantidade, '*') << "  (" << fixed << setprecision(2) << percentual << "%)\n";
+        }
+    }
+
+    void gerarHistogramaScore() 
+    {
+        map<int, int> contagem;
+
+        for (Registro* registro : dados) 
+        {
+            float score = registro->getScore();
+            int grupo = static_cast<int>(score);
+
+            if (grupo == 10)
+                grupo = 9;
+
+            contagem[grupo]++;  
+        }
+
+        cout << "\nHistograma \"Score\":\n\n";
+        cout << setw(6) << "  Score";
+        cout << setw(12) << " Qtd" << "\n";
+        for (pair par : contagem) 
+        {
+            double scoreInicial = par.first;
+            double scoreFinal = scoreInicial + 0.9;
+            if (scoreFinal == 9.9)
+                scoreFinal = 10;
+
+            int quantidade = par.second;
+            double percentual = (static_cast<double>(quantidade) / dados.size()) * 100;
+
+            cout << fixed << setprecision(1) << scoreInicial << " - " << scoreFinal << " | ";
+            cout << quantidade << " (" << fixed << setprecision(2) << percentual << "%) | ";
+            cout << string(quantidade, '*') << "\n";
+        }
+    }
+    
+    void exportarDados(Data* dataInicial, Data* dataFinal, float filtroInicial, float filtroFinal)
+    {
+        string nomeArquivo;
+        cout << "Digite o nome do arquivo para salvar os registros: ";
+        cin.ignore();
+        getline(cin, nomeArquivo);
+
+        ofstream arquivo(nomeArquivo);
+
+        if (arquivo.is_open()) 
+        {
+            arquivo << primeiraLinha;
+            for (Registro* registro : dados)
+            {
+                float score = registro->getScore();
+                Data* publishDate = registro->getPublishDate();
+                bool filterDate = (publishDate->compare(*dataInicial) >= 0) && (publishDate->compare(*dataFinal) <= 0);
+
+                if (score >= filtroInicial && score <= filtroFinal && filterDate)
+                    registro->serialize(arquivo);  
+            }
+            arquivo.close();
+            cout << "Registros salvos no arquivo '" << nomeArquivo << "'.\n";
+        } else 
+            cout << "Não foi possível abrir o arquivo para escrita.\n";
     }
 };
 
-
-// MENU
 int main()
 {
-    int opcao, cveId = 0;
     const string constPath = "/C/C++/GrauB/Trabalho/cve2018.txt";
     const string relativePath = "C:/Users/Mark/Desktop";
+
+    int opcao, cveId, contagemMinima, contagemMaxima;
+    float filtroInicial, filtroFinal;
+    Data* dataInicial;
+    Data* dataFinal;
+    string description, auxiliar;
 
     Sistema sistema(relativePath + constPath);
 
@@ -198,16 +372,79 @@ int main()
             sistema.localizarPorCveId(cveId);
             break;
         case 2:
-            // localizarPorDescription();
+            cin.ignore();
+            cout << endl << "Escreva alguma palavra ou frase de uma descrição: ";
+            getline(cin, description);
+            cout << endl;
+            sistema.localizarPorDescription(description);
             break;
         case 3:
-            // gerarHistogramaCweId();
+            cin.ignore();
+            cout << endl << "Escreva a contagem mínima: ";
+            cin >> contagemMinima;
+            cin.ignore();
+
+            cout << "Escreva a contagem máxima: ";
+            cin >> contagemMaxima;
+            sistema.gerarHistogramaCweId(contagemMinima, contagemMaxima);
             break;
         case 4:
-            // gerarHistogramaScore();
+            sistema.gerarHistogramaScore();
             break;
         case 5:
-            // exportarDados();
+            cin.ignore();
+            bool hasDates, hasScores;
+            
+            do
+            {
+                cout << endl << "Escreva o intervalo mínimo de data (ex: 2018/01/25): ";
+                getline(cin, auxiliar);
+                dataInicial = new Data(auxiliar);
+
+                if (dataInicial->validarData())
+                {
+                    cout << "\nData inválida, digite novamente.\n";
+                    continue;
+                }
+
+                cout << endl << "Escreva o intervalo máximo de data (ex: 2018/02/25): ";
+                getline(cin, auxiliar);
+                dataFinal = new Data(auxiliar);
+
+                if (dataFinal->validarData())
+                {
+                    cout << "\nData inválida, digite novamente.\n";
+                    continue;
+                }
+                    
+                if (dataFinal->compare(*dataInicial) == -1)
+                {
+                    cout << "\nData final menor que data inicial, digite novamente.\n";
+                    continue;
+                }   
+
+                hasDates = true;
+            } while (!hasDates);
+
+            do
+            {
+                cout << endl << "Escreva o filtro inicial de CVSS Score: ";
+                cin >> filtroInicial;
+
+                cout << endl << "Escreva o filtro final de CVSS Score: ";
+                cin >> filtroFinal;
+
+                if (filtroFinal < filtroInicial)
+                {
+                    cout << "\nFiltro final menor que filtro inicial, tente novamente.\n";
+                    continue;
+                }   
+
+                hasScores = true;
+            } while (!hasScores);
+
+            sistema.exportarDados(dataInicial, dataFinal, filtroInicial, filtroFinal);
+            delete dataInicial, dataFinal;
             break;
         case 6:
             cout << "\nPrograma encerrado.\n";
