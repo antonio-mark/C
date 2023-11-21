@@ -251,7 +251,7 @@ public:
             contagem[registro->getIdCWE()]++;
 
         vector<pair<int, int>> codigosFiltrados;
-        for (pair par : contagem) 
+        for (auto par : contagem) 
         {
             if (par.second >= contagemMinima && par.second <= contagemMaxima) 
                 codigosFiltrados.push_back(par);
@@ -264,7 +264,7 @@ public:
         cout << "\nHistograma \"CWE ID\":\n";
         cout << setw(10) << left << "CWE ID";
         cout << setw(8) << " Qtd" << "\n";
-        for (pair par : codigosFiltrados) 
+        for (auto par : codigosFiltrados) 
         {
             int quantidade = par.second;
             double percentual = (static_cast<double>(quantidade) / dados.size()) * 100;
@@ -293,7 +293,7 @@ public:
         cout << "\nHistograma \"Score\":\n\n";
         cout << setw(6) << "  Score";
         cout << setw(12) << " Qtd" << "\n";
-        for (pair par : contagem) 
+        for (auto par : contagem) 
         {
             double scoreInicial = par.first;
             double scoreFinal = scoreInicial + 0.9;
