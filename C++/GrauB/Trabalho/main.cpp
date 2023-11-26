@@ -162,10 +162,10 @@ public:
         arquivo 
            << this->idCVE << '\t'
            << this->idCWE << '\t'
-           << this->scoreCVSS << '\t'
            << this->vulnerabilityTypes << '\t'
            << this->publishDate->toString() << '\t'
            << this->updateDate->toString() << '\t'
+           << this->scoreCVSS << '\t'
            << this->gainedAccessLevel << '\t'
            << this->access << '\t'
            << this->complexity << '\t'
@@ -173,7 +173,7 @@ public:
            << this->confidentialy << '\t'
            << this->integrity << '\t'
            << this->availability << '\t'
-           << this->description;
+           << this->description << endl;
     }
 };
 
@@ -252,10 +252,8 @@ public:
 
         vector<pair<int, int>> codigosFiltrados;
         for (auto par : contagem) 
-        {
             if (par.second >= contagemMinima && par.second <= contagemMaxima) 
                 codigosFiltrados.push_back(par);
-        }   
 
         sort(codigosFiltrados.begin(), codigosFiltrados.end(), [](const auto& a, const auto& b) {
             return a.second > b.second;
@@ -309,18 +307,18 @@ public:
         }
     }
     
-    void exportarDados(Data* dataInicial, Data* dataFinal, float filtroInicial, float filtroFinal)
+    void exportarDados(Data* dataInicial, Data* dataFinal, float filtroInicial, float filtroFinal, string path)
     {
         string nomeArquivo;
         cout << "Digite o nome do arquivo para salvar os registros: ";
         cin.ignore();
         getline(cin, nomeArquivo);
 
-        ofstream arquivo(nomeArquivo);
+        ofstream arquivo(path + nomeArquivo);
 
         if (arquivo.is_open()) 
         {
-            arquivo << primeiraLinha;
+            arquivo << primeiraLinha << endl;
             for (Registro* registro : dados)
             {
                 float score = registro->getScore();
@@ -339,16 +337,17 @@ public:
 
 int main()
 {
-    const string constPath = "/C/C++/GrauB/Trabalho/cve2018.txt";
-    const string relativePath = "C:/Users/Mark/Desktop";
+    const string constPath = "C/C++/GrauB/Trabalho/";
+    const string relativePath = "C:/Users/Mark/Desktop/";
+    const string fileName = "cve2018.txt";
 
     int opcao, cveId, contagemMinima, contagemMaxima;
     float filtroInicial, filtroFinal;
     Data* dataInicial;
     Data* dataFinal;
-    string description, auxiliar;
+    string subdescription, auxiliar;
 
-    Sistema sistema(relativePath + constPath);
+    Sistema sistema(relativePath + constPath + fileName);
 
     do
     {
@@ -366,6 +365,7 @@ int main()
         switch (opcao)
         {
         case 1:
+            cin.ignore();
             cout << endl << "Escreva um CVE ID: ";
             cin >> cveId;
             cout << endl;
@@ -374,16 +374,15 @@ int main()
         case 2:
             cin.ignore();
             cout << endl << "Escreva alguma palavra ou frase de uma descrição: ";
-            getline(cin, description);
+            getline(cin, subdescription);
             cout << endl;
-            sistema.localizarPorDescription(description);
+            sistema.localizarPorDescription(subdescription);
             break;
         case 3:
             cin.ignore();
             cout << endl << "Escreva a contagem mínima: ";
             cin >> contagemMinima;
             cin.ignore();
-
             cout << "Escreva a contagem máxima: ";
             cin >> contagemMaxima;
             sistema.gerarHistogramaCweId(contagemMinima, contagemMaxima);
@@ -443,7 +442,7 @@ int main()
                 hasScores = true;
             } while (!hasScores);
 
-            sistema.exportarDados(dataInicial, dataFinal, filtroInicial, filtroFinal);
+            sistema.exportarDados(dataInicial, dataFinal, filtroInicial, filtroFinal, relativePath + constPath);
             delete dataInicial, dataFinal;
             break;
         case 6:
